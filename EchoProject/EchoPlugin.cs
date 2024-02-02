@@ -26,6 +26,7 @@ namespace EchoProject
         public static ConfigEntry<float>? sonarSpeed;
         public static ConfigEntry<string>? sonarColor;
         public static ConfigEntry<float>? sonarRange;
+        public static ConfigEntry<bool>? nightmareMode;
         public static Hook? hudManagerHook;
         public static Hook? startOfRoundHook;
         public static Hook? hudManagerUpdateHook;
@@ -33,16 +34,20 @@ namespace EchoProject
         {
             mls = Logger;
             assetMat.SetFloat("_Distance", 100f);
-            sonarSpeed = Config.Bind("Sonar settings", "Sonar speed", 10f, "How fast the sonar expands");
+            sonarSpeed = Config.Bind("Sonar settings", "Sonar speed", 15f, "How fast the sonar expands");
             sonarColor = Config.Bind("Sonar settings", "Sonar Color", "0,9,255", "255,0,0 for red, 0,255,0 for green, 0,0,255 for blue");
-            sonarRange = Config.Bind("Sonar settings", "Sonar Range", 20f, "How far the sonar goes");
+            sonarRange = Config.Bind("Sonar settings", "Sonar Range", 50f, "How far the sonar goes");
+            nightmareMode = Config.Bind("Sonar settings", "Nightmare mode", false, "Only for the brave hearted");
 
             string[] sonarColorSplit = sonarColor.Value.Split(',');
             int[] colorInts = {0,0,0};
             int.TryParse(sonarColorSplit[0], out colorInts[0]);
             int.TryParse(sonarColorSplit[1], out colorInts[1]);
             int.TryParse(sonarColorSplit[2], out colorInts[2]);
-
+            if (nightmareMode.Value) {
+                assetMat.SetInt("_Fade", 1);
+                assetMat.SetFloat("_FadeOffset",-1f);
+            }
             assetMat.SetFloat("_FadeAfter",sonarRange.Value);
             assetMat.SetColor("_BorderColor", new Color(colorInts[0]/255f, colorInts[1]/255f, colorInts[2]/255f));
             
