@@ -11,6 +11,7 @@ using MonoMod.RuntimeDetour;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.HighDefinition;
+using UnityEngine.UIElements;
 namespace EchoProject
 {
     [BepInPlugin(modGuid,modName,"1.0.0.0")]
@@ -75,19 +76,25 @@ namespace EchoProject
                 }
                 original(self);
             });
-
-
-            startOfRoundHook = new(
-            typeof(HUDManager).GetMethod(nameof(HUDManager.Start), (BindingFlags)int.MaxValue),
-            (Action<HUDManager> original, HUDManager self) =>
-            {
-                StartCoroutine(WaitUntilPostProcessApi());
-                original(self);
-            });
         }
-        public static IEnumerator WaitUntilPostProcessApi()
+        private void Start()
         {
-            yield return new WaitUntil(() => CustomPostProcessingManager.Instance != null);
+            if (CustomPostProcessingManager.Initialized)
+            {
+                DoStuff();
+            }
+            else
+            {
+                CustomPostProcessingManager.OnLoad += CustomPostProcessingManager_OnLoad;
+            }
+        }
+        private void CustomPostProcessingManager_OnLoad(object sender, EventArgs e)
+        {
+            DoStuff();
+        }
+
+        private void DoStuff()
+        {
             PostProcess sonar = new PostProcess("Sonar", assetMat)
             {
                 InjectionType = InjectionType.AfterPostProcess
